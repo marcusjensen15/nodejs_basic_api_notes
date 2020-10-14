@@ -1,4 +1,5 @@
 const express = require('express');
+const Joi = require('joi');
 const app = express();
 // the app constant represents our application
 //this app.use statement is middleware
@@ -42,6 +43,18 @@ app.get('/howdy/:id/:secondaryid', (req,res) => {
 
 
 app.post('/api/courses', (req,res) => {
+    // we will validate with joi. good package for validation.
+    const schema = Joi.object({ name: Joi.string().min(3).required()});
+
+    const result = schema.validate(req.body);
+
+    if (result.error){
+      // respond with bad request 400
+
+      res.status(400).send(result.error.details[0].message);
+      return;
+    }
+
     const course = {
       id: courses.length + 1,
       name: req.body.name
