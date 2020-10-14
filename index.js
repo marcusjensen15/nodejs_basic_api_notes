@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 // the app constant represents our application
-
+//this app.use statement is middleware
+app.use(express.json());
 const courses = [
   { id:1, name: 'bill'},
   { id:2, name: "cliff"},
@@ -37,6 +38,16 @@ app.get('/test/:month/:day', (req,res) => {
 
 app.get('/howdy/:id/:secondaryid', (req,res) => {
   res.send(req.query);
+});
+
+
+app.post('/api/courses', (req,res) => {
+    const course = {
+      id: courses.length + 1,
+      name: req.body.name
+    };
+    courses.push(course);
+    res.send(course);
 });
 
 //PORT - enviornment variable.
