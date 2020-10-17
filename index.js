@@ -1,20 +1,61 @@
+//Set up instructions for various enviornments in all of the .json files.
+const config = require('config');
+
 const express = require('express');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const Joi = require('joi');
 const app = express();
 const logger = require('./logger');
+const auth = require('./authenticate');
 // the app constant represents our application
 //this app.use statement is middleware
+//this express.json is built in middleware.
+
+//configuration
+
+console.log('Application Name ' + config.get('name'));
+console.log('Mail Server ' + config.get('mail.host'));
+
+
+//line below returns the enviornment for this node application. You can set this variable.
+
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+
+//below will return 'development' by default
+console.log(`app: ${app.get('env')}`);
+
+
 app.use(express.json());
+
+//if you use this, you would send key value pairs in the x-www-form-urlencoded area of postman. the extended: true lets us pass arrays, objects, etc. not just strings/numbers
+app.use(express.urlencoded( {extended:true}));
+
+app.use(helmet());
+
+//morgan used to log http requests
+
+// app.use(morgan('tiny'));
+
+
+//setting up different preferences depending on development enviornment
+
+//set to different enviornment by running this: export NODE_ENV=production in the terminal.
+
+if (app.get('env') === 'development') {
+  app.use(morgan('tiny'));
+  console.log('Morgan enabled...');
+}
+
+// this below lets us serve up static content. if you navigate to localhost:3000/readme.txt you will see the text in that file written to the dom.
+app.use(express.static('public'));
+
 
 //always use app.use when installing middleware. next is a reference to the next middleware function in the pipeline. you need the nex() method or your request will end up hanging
 
 app.use(logger);
+app.use(auth);
 
-app.use(function(req,res,next) {
-
-  console.log('Authenticating...');
-  next();
-});
 
 app.use
 const courses = [
