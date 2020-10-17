@@ -16,6 +16,8 @@ const auth = require('./authenticate');
 
 console.log('Application Name ' + config.get('name'));
 console.log('Mail Server ' + config.get('mail.host'));
+console.log('Mail Server ' + config.get('mail.password'));
+
 
 
 //line below returns the enviornment for this node application. You can set this variable.
