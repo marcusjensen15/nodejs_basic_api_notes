@@ -1,9 +1,22 @@
 const express = require('express');
 const Joi = require('joi');
 const app = express();
+const logger = require('./logger');
 // the app constant represents our application
 //this app.use statement is middleware
 app.use(express.json());
+
+//always use app.use when installing middleware. next is a reference to the next middleware function in the pipeline. you need the nex() method or your request will end up hanging
+
+app.use(logger);
+
+app.use(function(req,res,next) {
+
+  console.log('Authenticating...');
+  next();
+});
+
+app.use
 const courses = [
   { id:1, name: 'bill'},
   { id:2, name: "cliff"},
