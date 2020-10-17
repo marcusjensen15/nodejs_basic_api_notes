@@ -43,17 +43,14 @@ app.get('/howdy/:id/:secondaryid', (req,res) => {
 
 
 app.post('/api/courses', (req,res) => {
-    // we will validate with joi. good package for validation.
-    const schema = Joi.object({ name: Joi.string().min(3).required()});
+  const {error} = validateCourse(req.body);
 
-    const result = schema.validate(req.body);
+  //if invalid, return 400
 
-    if (result.error){
-      // respond with bad request 400
-
-      res.status(400).send(result.error.details[0].message);
-      return;
-    }
+  if (error){
+    res.status(400).send(error.details[0].message);
+    return;
+  }
 
     const course = {
       id: courses.length + 1,
@@ -62,6 +59,47 @@ app.post('/api/courses', (req,res) => {
     courses.push(course);
     res.send(course);
 });
+
+//update resources
+
+app.put('/api/courses/:id', (req,res) => {
+  //look up courses
+
+
+  let course = courses.find( c => c.id === parseInt(req.params.id));
+  //if doesn't exist return 404
+  if(!course) res.status(404).send('the course with the given id was not found');
+
+  //validate courses
+
+
+  // const result = validateCourse(req.body);
+  //below is an example of object destructuring. we are referring to the result.error as error;
+
+  const {error} = validateCourse(req.body);
+
+  //if invalid, return 400
+
+  if (error){
+    res.status(400).send(error.details[0].message);
+    return;
+  }
+
+  //update courses
+
+  course.name = req.body.name;
+
+  //return updated course
+  res.send(course);
+});
+
+function validateCourse(course){
+  const schema = Joi.object({ name: Joi.string().min(3).required()});
+  return schema.validate(course);
+
+
+};
+
 
 //PORT - enviornment variable.
 
