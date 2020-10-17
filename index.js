@@ -23,7 +23,7 @@ app.get('/api/courses', (req,res) => {
 app.get('/api/courses/:id', (req,res) => {
   let course = courses.find( c => c.id === parseInt(req.params.id));
   //respond with 404 (not found)
-  if(!course) res.status(404).send('the course with the given id was not found');
+  if(!course) return res.status(404).send('the course with the given id was not found');
   res.send(course);
 });
 
@@ -47,10 +47,8 @@ app.post('/api/courses', (req,res) => {
 
   //if invalid, return 400
 
-  if (error){
-    res.status(400).send(error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(error.details[0].message);
+
 
     const course = {
       id: courses.length + 1,
@@ -58,6 +56,28 @@ app.post('/api/courses', (req,res) => {
     };
     courses.push(course);
     res.send(course);
+});
+
+
+app.delete('/api/courses/:id', (req,res) => {
+  //look up course
+  //if doesn't exist return 404
+
+  let course = courses.find( c => c.id === parseInt(req.params.id));
+  //if doesn't exist return 404
+  if(!course) res.status(404).send('the course with the given id was not found');
+
+  //delete
+
+  const index = courses.indexOf(course);
+
+  courses.splice(index,1);
+
+  //return response
+
+  res.send(course);
+
+
 });
 
 //update resources
@@ -68,7 +88,8 @@ app.put('/api/courses/:id', (req,res) => {
 
   let course = courses.find( c => c.id === parseInt(req.params.id));
   //if doesn't exist return 404
-  if(!course) res.status(404).send('the course with the given id was not found');
+  if(!course) return res.status(404).send('the course with the given id was not found');
+
 
   //validate courses
 
@@ -80,10 +101,8 @@ app.put('/api/courses/:id', (req,res) => {
 
   //if invalid, return 400
 
-  if (error){
-    res.status(400).send(error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(error.details[0].message);
+
 
   //update courses
 
@@ -92,6 +111,8 @@ app.put('/api/courses/:id', (req,res) => {
   //return updated course
   res.send(course);
 });
+
+
 
 function validateCourse(course){
   const schema = Joi.object({ name: Joi.string().min(3).required()});
