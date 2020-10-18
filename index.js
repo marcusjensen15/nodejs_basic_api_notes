@@ -8,6 +8,14 @@ const Joi = require('joi');
 const app = express();
 const logger = require('./logger');
 const auth = require('./authenticate');
+
+
+app.set('view engine', 'pug');
+
+//a couple different debugging functions instead of just using 'console.log'
+
+const dbDebugger = require('debug')('app:db');
+const startupDebugger = require('debug')('app:startup');
 // the app constant represents our application
 //this app.use statement is middleware
 //this express.json is built in middleware.
@@ -46,8 +54,12 @@ app.use(helmet());
 
 if (app.get('env') === 'development') {
   app.use(morgan('tiny'));
-  console.log('Morgan enabled...');
+  startupDebugger('Morgan enabled...');
 }
+
+//DB Work ...
+
+dbDebugger('Connected to the database....')
 
 // this below lets us serve up static content. if you navigate to localhost:3000/readme.txt you will see the text in that file written to the dom.
 app.use(express.static('public'));
