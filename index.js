@@ -6,11 +6,19 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const Joi = require('joi');
 const app = express();
-const logger = require('./logger');
+const logger = require('./middleware/logger');
 const auth = require('./authenticate');
 
+//below is loading all of our courses routes
+
+const courses = require('./routes/courses');
+const view = require('./routes/view');
+
+
+//app.set('view engine', 'pug') is for templating engines (responses that return html markup). it doesn't need to be requried because express is internally loading this module. All views need to be in a folder called 'views' in the root of the app.
 
 app.set('view engine', 'pug');
+app.set('viewes', './views');
 
 //a couple different debugging functions instead of just using 'console.log'
 
@@ -43,6 +51,13 @@ app.use(express.urlencoded( {extended:true}));
 
 app.use(helmet());
 
+//below, we are telling express that for any route that starts with '/api/courses' use the courses module. 
+
+app.use('/api/courses', courses);
+
+app.use('/', view);
+
+
 //morgan used to log http requests
 
 // app.use(morgan('tiny'));
@@ -72,115 +87,6 @@ app.use(auth);
 
 
 app.use
-const courses = [
-  { id:1, name: 'bill'},
-  { id:2, name: "cliff"},
-  { id:3, name: "biff"}
-]
-
-
-app.get('/', (req, res) => {
-    res.send('hello world!!!');
-});
-
-app.get('/api/courses', (req,res) => {
-    res.send(courses);
-});
-
-// :id could be literally anything. just needs to start with ac colon. params is a keyword.
-app.get('/api/courses/:id', (req,res) => {
-  let course = courses.find( c => c.id === parseInt(req.params.id));
-  //respond with 404 (not found)
-  if(!course) return res.status(404).send('the course with the given id was not found');
-  res.send(course);
-});
-
-//you can also add multiple paramaters. here i'm just returning the 'day' value.
-
-app.get('/test/:month/:day', (req,res) => {
-  res.send(req.params.day);
-});
-
-//you can also provide query string parameters (beginning with a ?)
-
-//if you type in localhost:5000/howdy/545/2332/sortBy=name it will return {"sortBy": "name"}
-
-app.get('/howdy/:id/:secondaryid', (req,res) => {
-  res.send(req.query);
-});
-
-
-app.post('/api/courses', (req,res) => {
-  const {error} = validateCourse(req.body);
-
-  //if invalid, return 400
-
-  if (error) return res.status(400).send(error.details[0].message);
-
-
-    const course = {
-      id: courses.length + 1,
-      name: req.body.name
-    };
-    courses.push(course);
-    res.send(course);
-});
-
-
-app.delete('/api/courses/:id', (req,res) => {
-  //look up course
-  //if doesn't exist return 404
-
-  let course = courses.find( c => c.id === parseInt(req.params.id));
-  //if doesn't exist return 404
-  if(!course) res.status(404).send('the course with the given id was not found');
-
-  //delete
-
-  const index = courses.indexOf(course);
-
-  courses.splice(index,1);
-
-  //return response
-
-  res.send(course);
-
-
-});
-
-//update resources
-
-app.put('/api/courses/:id', (req,res) => {
-  //look up courses
-
-
-  let course = courses.find( c => c.id === parseInt(req.params.id));
-  //if doesn't exist return 404
-  if(!course) return res.status(404).send('the course with the given id was not found');
-
-
-  //validate courses
-
-
-  // const result = validateCourse(req.body);
-  //below is an example of object destructuring. we are referring to the result.error as error;
-
-  const {error} = validateCourse(req.body);
-
-  //if invalid, return 400
-
-  if (error) return res.status(400).send(error.details[0].message);
-
-
-  //update courses
-
-  course.name = req.body.name;
-
-  //return updated course
-  res.send(course);
-});
-
-
 
 function validateCourse(course){
   const schema = Joi.object({ name: Joi.string().min(3).required()});
